@@ -1,0 +1,6 @@
+name: Axelerant
+type: module
+description: The module provide the sample code for competency check.
+core: 8.x
+core_version_requirement: ^8 || ^9
+package: Axelerant

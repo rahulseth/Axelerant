@@ -1,0 +1,66 @@
+<?php
+
+/**
+ * @file
+ * The axelerant module that provide sample code for competency check.
+ */
+
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function axelerant_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    case 'help.page.axelerant':
+      $output = '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('axelerant module divided into two phase.') .'</p>';
+      $output .= '<ol><li>'. t('Alter the site information form.') . '</li>';
+      $output .= '<li>' . t(' Provides a URL that responds with a JSON 
+        representation of a given node with the content type "page" only 
+        if the previously submitted API Key and a node id (nid) of an 
+        appropriate node are present, otherwise it will respond with 
+        "access denied".') . '</li><ol>';
+    return $output;
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * Alter the existing Drupal "Site Information" form.
+ *
+ * @see axelerant_submit_handler()
+ */
+function axelerant_form_system_site_information_settings_alter
+ (&$form, FormStateInterface $form_state, $form_id) {
+  $siteapikey = \Drupal::config('system.site')
+   ->get('siteapikey') ?: "No API Key yet";
+
+  // Adding textfield in the Site Information form.
+  $form['site_information']['site_api_key'] = [
+    '#type' => 'textfield',
+    '#title' => t('Site API Key'),
+    '#default_value' => $siteapikey,
+    '#description' => t('Custom Site API Key'),
+    '#required' => TRUE,
+  ];
+    
+  $form['actions']['submit']['#value'] = t('Update Configuration');
+  $form['#submit'][] = 'axelerant_submit_handler';
+}
+
+/**
+ * Form submission handler for system_site_information_settings().
+ *
+ * @see axelerant_form_system_site_information_settings_alter()
+ */
+function axelerant_submit_handler($form, FormStateInterface $form_state) {
+  if ($form_state->getValue('site_api_key')) {
+    $config =\Drupal::configFactory()->getEditable('system.site');
+    $config->set('siteapikey', $form_state->getValue('site_api_key'));
+    $config->save();  
+		drupal_set_message("Site API Key has been saved with " . $config->get('siteapikey'));
+	}
+}

@@ -1,0 +1,7 @@
+axelerant.json_page:
+  path: 'page_json/{site_key}/{node_id}'
+  defaults: 
+    _controller: '\Drupal\axelerant\Controller\JsonResponseController::responseJson'
+    _title: 'JSON Response'
+  requirements: 
+    _permission: 'access content'
